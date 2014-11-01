@@ -36,7 +36,7 @@ module Text.Parse.Units (
   UnitExp(..), parseUnit,
 
   -- * Symbol tables
-  SymbolTable, PrefixTable, UnitTable, mkSymbolTable,
+  SymbolTable(..), PrefixTable, UnitTable, mkSymbolTable,
   unsafeMkSymbolTable, universalSymbolTable,
 
   -- * Testing only
