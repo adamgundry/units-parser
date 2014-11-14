@@ -1,8 +1,9 @@
-{-# LANGUAGE LambdaCase, NoMonomorphismRestriction, FlexibleContexts, RankNTypes #-}
+{-# LANGUAGE LambdaCase, NoMonomorphismRestriction, FlexibleContexts, RankNTypes,
+             Safe #-}
 
 -----------------------------------------------------------------------------
 -- |
--- Module      :  Data.Metrology.ParseUnit
+-- Module      :  Text.Parse.Units
 -- Copyright   :  (C) 2014 Richard Eisenberg
 -- License     :  BSD-style (see LICENSE)
 -- Stability   :  experimental
@@ -182,7 +183,7 @@ data SymbolTable pre u = SymbolTable { prefixTable :: PrefixTable pre
                                      , unitTable   :: UnitTable u
                                      }
 
--- build a Map from a list, checking for ambiguity
+-- | Build a 'Map' from an association list, checking for ambiguity
 unambFromList :: (Ord a, Show b) => [(a,b)] -> Either [(a,[String])] (Map.Map a b)
 unambFromList list =
   let multimap      = MM.fromList list
@@ -222,6 +223,8 @@ mkSymbolTable prefixes units =
 -- | Make a symbol table without checking for ambiguity or non-purely
 -- alphabetic strings.  The prefixes must be a (potentially empty)
 -- finite map, but the units mapping need not be finite.
+-- Note that this is unsafe in that the resulting parser may behave
+-- unpredictably. It surely won't launch the rockets, though.
 unsafeMkSymbolTable :: PrefixTable pre -> UnitTable u -> SymbolTable pre u
 unsafeMkSymbolTable = SymbolTable
 

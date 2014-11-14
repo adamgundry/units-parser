@@ -2,7 +2,7 @@
    Copyright (c) 2014 Richard Eisenberg
 -}
 
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell, TypeOperators #-}
 
 module Tests.Parser where
 
@@ -135,6 +135,138 @@ data Minute = Minute
 data Ampere = Ampere
 
 ----------------------------------------------------------------------
+-- TH conversions, taken from the `units` package
+----------------------------------------------------------------------
+
+-- This is silly, but better than rewriting the tests.
+-- Note that we can't depend on `units` package, because we want
+-- `units` to depend on `units-parser`. Urgh.
+data Number = Number
+data a :@ b = a :@ b
+data a :* b = a :* b
+data a :/ b = a :/ b
+data a :^ b = a :^ b
+
+data Succ a
+data Z = Zero
+  
+sPred, sSucc, sZero :: ()
+sPred = ()
+sSucc = ()
+sZero = ()
+
+parseUnitExp :: SymbolTable Name Name -> String -> Either String Exp
+parseUnitExp tab s = to_exp `liftM` parseUnit tab s   -- the Either monad
+  where
+    to_exp Unity                  = ConE 'Number
+    to_exp (Unit (Just pre) unit) = ConE '(:@) `AppE` of_type pre `AppE` of_type unit
+    to_exp (Unit Nothing unit)    = of_type unit
+    to_exp (Mult e1 e2)           = ConE '(:*) `AppE` to_exp e1 `AppE` to_exp e2
+    to_exp (Div e1 e2)            = ConE '(:/) `AppE` to_exp e1 `AppE` to_exp e2
+    to_exp (Pow e i)              = ConE '(:^) `AppE` to_exp e `AppE` mk_sing i
+
+    of_type :: Name -> Exp
+    of_type n = (VarE 'undefined) `SigE` (ConT n)
+
+    mk_sing :: Integer -> Exp
+    mk_sing n
+      | n < 0     = VarE 'sPred `AppE` mk_sing (n + 1)
+      | n > 0     = VarE 'sSucc `AppE` mk_sing (n - 1)
+      | otherwise = VarE 'sZero
+
+parseUnitType :: SymbolTable Name Name -> String -> Either String Type
+parseUnitType tab s = to_type `liftM` parseUnit tab s   -- the Either monad
+  where
+    to_type Unity                  = ConT ''Number
+    to_type (Unit (Just pre) unit) = ConT ''(:@) `AppT` ConT pre `AppT` ConT unit
+    to_type (Unit Nothing unit)    = ConT unit
+    to_type (Mult e1 e2)           = ConT ''(:*) `AppT` to_type e1 `AppT` to_type e2
+    to_type (Div e1 e2)            = ConT ''(:/) `AppT` to_type e1 `AppT` to_type e2
+    to_type (Pow e i)              = ConT ''(:^) `AppT` to_type e `AppT` mk_z i
+
+    mk_z :: Integer -> Type
+    mk_z n
+      | n < 0     = ConT ''Pred `AppT` mk_z (n + 1)
+      | n > 0     = ConT ''Succ `AppT` mk_z (n - 1)
+      | otherwise = ConT 'Zero   -- single quote as it's a data constructor!
+
+----------------------------------------------------------------------
+-- Overall parser
+----------------------------------------------------------------------
+
+parseUnitTest :: String -> String
+parseUnitTest s =
+  case parseUnitExp testSymbolTable s of
+    Left _    -> "error"
+    Right exp -> pprintUnqualified exp
+
+parseTestCases :: [(String, String)]
+parseTestCases =
+  [ ("m", "undefined :: Meter")
+  , ("s", "undefined :: Second")
+  , ("ms", "(:@) (undefined :: Milli) (undefined :: Second)")
+  , ("mm", "(:@) (undefined :: Milli) (undefined :: Meter)")
+  , ("mmm", "error")
+  , ("km", "(:@) (undefined :: Kilo) (undefined :: Meter)")
+  , ("m s", "(:*) (undefined :: Meter) (undefined :: Second)")
+  , ("m/s", "(:/) (undefined :: Meter) (undefined :: Second)")
+  , ("m/s^2", "(:/) (undefined :: Meter) ((:^) (undefined :: Second) (sSucc (sSucc sZero)))")
+  , ("s/m m", "(:/) (undefined :: Second) ((:*) (undefined :: Meter) (undefined :: Meter))")
+  , ("s s/m m", "(:/) ((:*) (undefined :: Second) (undefined :: Second)) ((:*) (undefined :: Meter) (undefined :: Meter))")
+  , ("s*s/m*m", "(:*) ((:/) ((:*) (undefined :: Second) (undefined :: Second)) (undefined :: Meter)) (undefined :: Meter)")
+  , ("s*s/(m*m)", "(:/) ((:*) (undefined :: Second) (undefined :: Second)) ((:*) (undefined :: Meter) (undefined :: Meter))")
+  , ("m^-1", "(:^) (undefined :: Meter) (sPred sZero)")
+  , ("m^(-1)", "(:^) (undefined :: Meter) (sPred sZero)")
+  , ("m^(-(1))", "(:^) (undefined :: Meter) (sPred sZero)")
+  , ("1", "Number")
+  , ("1/s", "(:/) Number (undefined :: Second)")
+  , ("m 1 m", "(:*) ((:*) (undefined :: Meter) Number) (undefined :: Meter)")
+  , ("  ", "Number")
+  , ("", "Number")
+  ]
+
+parseUnitTests :: TestTree
+parseUnitTests = testGroup "ParseUnit" $
+  map (\(str, out) -> testCase ("`" ++ str ++ "'") $ parseUnitTest str @?= out)
+    parseTestCases
+
+parseUnitTestT :: String -> String
+parseUnitTestT s =
+  case parseUnitType testSymbolTable s of
+    Left _    -> "error"
+    Right exp -> pprintUnqualified exp
+
+parseTestCasesT :: [(String, String)]
+parseTestCasesT =
+  [ ("m", "Meter")
+  , ("s", "Second")
+  , ("ms", ":@ Milli Second")
+  , ("mm", ":@ Milli Meter")
+  , ("mmm", "error")
+  , ("km", ":@ Kilo Meter")
+  , ("m s", ":* Meter Second")
+  , ("m/s", ":/ Meter Second")
+  , ("m/s^2", ":/ Meter (:^ Second (Succ (Succ Zero)))")
+  , ("s/m m", ":/ Second (:* Meter Meter)")
+  , ("s s/m m", ":/ (:* Second Second) (:* Meter Meter)")
+  , ("s*s/m*m", ":* (:/ (:* Second Second) Meter) Meter")
+  , ("s*s/(m*m)", ":/ (:* Second Second) (:* Meter Meter)")
+  , ("m^-1", ":^ Meter (Pred Zero)")
+  , ("m^(-1)", ":^ Meter (Pred Zero)")
+  , ("m^(-(1))", ":^ Meter (Pred Zero)")
+  , ("1", "Number")
+  , ("1/s", ":/ Number Second")
+  , ("m 1 m", ":* (:* Meter Number) Meter")
+  , ("  ", "Number")
+  , ("", "Number")
+  ]
+
+parseUnitTestsT :: TestTree
+parseUnitTestsT = testGroup "ParseUnitType" $
+  map (\(str, out) -> testCase ("`" ++ str ++ "'") $ parseUnitTestT str @?= out)
+    parseTestCasesT
+
+----------------------------------------------------------------------
 -- Conclusion
 ----------------------------------------------------------------------
 
@@ -143,6 +275,8 @@ tests = testGroup "Parser"
   [ lexTests
   , mkSymbolTableTests
   , unitStringTests
+  , parseUnitTests
+  , parseUnitTestsT
   ]
 
 main :: IO ()
