@@ -156,7 +156,7 @@ sSucc = ()
 sZero = ()
 
 parseUnitExp :: SymbolTable Name Name -> String -> Either String Exp
-parseUnitExp tab s = to_exp `liftM` parseUnit tab s   -- the Either monad
+parseUnitExp tbl s = to_exp `liftM` parseUnit tbl s   -- the Either monad
   where
     to_exp Unity                  = ConE 'Number
     to_exp (Unit (Just pre) unit) = ConE '(:@) `AppE` of_type pre `AppE` of_type unit
@@ -175,7 +175,7 @@ parseUnitExp tab s = to_exp `liftM` parseUnit tab s   -- the Either monad
       | otherwise = VarE 'sZero
 
 parseUnitType :: SymbolTable Name Name -> String -> Either String Type
-parseUnitType tab s = to_type `liftM` parseUnit tab s   -- the Either monad
+parseUnitType tbl s = to_type `liftM` parseUnit tbl s   -- the Either monad
   where
     to_type Unity                  = ConT ''Number
     to_type (Unit (Just pre) unit) = ConT ''(:@) `AppT` ConT pre `AppT` ConT unit
