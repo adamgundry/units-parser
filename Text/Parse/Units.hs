@@ -1,5 +1,6 @@
 {-# LANGUAGE LambdaCase, NoMonomorphismRestriction, FlexibleContexts, RankNTypes,
              Safe #-}
+{-# OPTIONS_HADDOCK prune #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -40,8 +41,7 @@ module Text.Parse.Units (
   SymbolTable(..), PrefixTable, UnitTable, mkSymbolTable,
   unsafeMkSymbolTable, universalSymbolTable,
 
-  -- * Testing only
-  lex, unitStringParser
+  lex, unitStringParser  -- these are pruned from the Haddock output
   ) where
 
 import Prelude hiding ( lex, div )
