@@ -3,8 +3,8 @@ version:        0.1.0.0
 cabal-version:  >= 1.10
 synopsis:       A parser for units of measure
 category:       Text
-author:         Richard Eisenberg <eir@cis.upenn.edu>
-maintainer:     Richard Eisenberg <eir@cis.upenn.edu>, Adam Gundry <adam@well-typed.com>
+author:         Richard Eisenberg <rae@cs.brynmawr.edu>
+maintainer:     Richard Eisenberg <rae@cs.brynmawr.edu>, Adam Gundry <adam@well-typed.com>
 bug-reports:    https://github.com/adamgundry/units-parser/issues
 stability:      experimental
 license:        BSD3
