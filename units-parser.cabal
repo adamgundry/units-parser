@@ -45,5 +45,6 @@ test-suite main
                   , syb >= 0.3
                   , containers >= 0.4
                   , parsec >= 3
+  other-modules:    Text.Parse.Units
 
   ghc-options:        -O0 -Wall -Werror -main-is Tests.Parser
