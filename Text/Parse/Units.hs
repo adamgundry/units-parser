@@ -1,5 +1,5 @@
 {-# LANGUAGE LambdaCase, NoMonomorphismRestriction, FlexibleContexts, RankNTypes,
-             Safe #-}
+             Safe, DeriveGeneric #-}
 {-# OPTIONS_HADDOCK prune #-}
 
 -----------------------------------------------------------------------------
@@ -46,6 +46,7 @@ module Text.Parse.Units (
 
 import Prelude hiding ( lex, div )
 
+import GHC.Generics (Generic)
 import Text.Parsec         hiding ( tab )
 import Text.Parsec.String
 import Text.Parsec.Pos
@@ -117,6 +118,7 @@ data UnitExp pre u = Unity                     -- ^ "1"
                    | Mult (UnitExp pre u) (UnitExp pre u)
                    | Div (UnitExp pre u) (UnitExp pre u)
                    | Pow (UnitExp pre u) Integer
+                   deriving (Eq, Ord, Generic)
 
 instance (Show pre, Show u) => Show (UnitExp pre u) where
   show Unity               = "1"
