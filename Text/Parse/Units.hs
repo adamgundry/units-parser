@@ -1,5 +1,5 @@
 {-# LANGUAGE LambdaCase, NoMonomorphismRestriction, FlexibleContexts, RankNTypes,
-             Safe, DeriveGeneric #-}
+             Safe, DeriveGeneric, DeriveDataTypeable #-}
 {-# OPTIONS_HADDOCK prune #-}
 
 -----------------------------------------------------------------------------
@@ -54,6 +54,7 @@ import qualified Data.Map.Strict as Map
 import qualified Data.MultiMap as MM
 import Control.Monad.Reader
 import Control.Arrow       hiding ( app)
+import Data.Data (Data)
 import Data.Maybe
 import Data.Char
 
@@ -118,7 +119,7 @@ data UnitExp pre u = Unity                     -- ^ "1"
                    | Mult (UnitExp pre u) (UnitExp pre u)
                    | Div (UnitExp pre u) (UnitExp pre u)
                    | Pow (UnitExp pre u) Integer
-                   deriving (Eq, Ord, Generic)
+                   deriving (Eq, Ord, Generic, Data)
 
 instance (Show pre, Show u) => Show (UnitExp pre u) where
   show Unity               = "1"
@@ -183,7 +184,7 @@ type UnitTable u = String -> Maybe u
 -- representations.
 data SymbolTable pre u = SymbolTable { prefixTable :: PrefixTable pre
                                      , unitTable   :: UnitTable u
-                                     }
+                                     } deriving (Generic)
 
 -- | Build a 'Map' from an association list, checking for ambiguity
 unambFromList :: (Ord a, Show b) => [(a,b)] -> Either [(a,[String])] (Map.Map a b)
