@@ -1,5 +1,5 @@
 {-# LANGUAGE LambdaCase, NoMonomorphismRestriction, FlexibleContexts, RankNTypes,
-             Safe, DeriveGeneric, DeriveDataTypeable #-}
+             Safe, DeriveGeneric, DeriveDataTypeable, CPP #-}
 {-# OPTIONS_HADDOCK prune #-}
 
 -----------------------------------------------------------------------------
@@ -57,6 +57,10 @@ import Control.Arrow       hiding ( app)
 import Data.Data (Data)
 import Data.Maybe
 import Data.Char
+
+#if __GLASGOW_HASKELL__ < 709
+import Data.Typeable ( Typeable )
+#endif
 
 ----------------------------------------------------------------------
 -- Basic combinators
@@ -120,6 +124,10 @@ data UnitExp pre u = Unity                     -- ^ "1"
                    | Div (UnitExp pre u) (UnitExp pre u)
                    | Pow (UnitExp pre u) Integer
                    deriving (Eq, Ord, Generic, Data)
+
+#if __GLASGOW_HASKELL__ < 709
+deriving instance Typeable UnitExp
+#endif
 
 instance (Show pre, Show u) => Show (UnitExp pre u) where
   show Unity               = "1"

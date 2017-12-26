@@ -1,6 +1,11 @@
 Changelog for `units-parser`
 ============================
 
+0.1.1.1
+-------
+
+Add support for 7.8.4, which didn't auto-derive `Typeable`.
+
 0.1.1
 -----
 

@@ -1,5 +1,5 @@
 name:           units-parser
-version:        0.1.1
+version:        0.1.1.1
 cabal-version:  >= 1.10
 synopsis:       A parser for units of measure
 category:       Text
