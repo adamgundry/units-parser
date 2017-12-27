@@ -1,5 +1,5 @@
 {-# LANGUAGE LambdaCase, NoMonomorphismRestriction, FlexibleContexts, RankNTypes,
-             Safe, DeriveGeneric, DeriveDataTypeable, CPP #-}
+             Safe, DeriveGeneric, DeriveDataTypeable, CPP, StandaloneDeriving #-}
 {-# OPTIONS_HADDOCK prune #-}
 
 -----------------------------------------------------------------------------
