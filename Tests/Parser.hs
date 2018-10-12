@@ -2,7 +2,7 @@
    Copyright (c) 2014 Richard Eisenberg
 -}
 
-{-# LANGUAGE TemplateHaskell, TypeOperators #-}
+{-# LANGUAGE TemplateHaskell, TypeOperators, CPP #-}
 
 module Tests.Parser where
 
@@ -149,7 +149,7 @@ data a :^ b = a :^ b
 
 data Succ a
 data Z = Zero
-  
+
 sPred, sSucc, sZero :: ()
 sPred = ()
 sSucc = ()
@@ -236,27 +236,41 @@ parseUnitTestT s =
     Left _    -> "error"
     Right exp -> pprintUnqualified exp
 
+op :: String -> String
+#if __GLASGOW_HASKELL__ > 802
+op s = "(" ++ s ++ ")"
+#else
+op = id
+#endif
+
+opm, opd, ope, opa :: String
+opm = op ":*"
+opd = op ":/"
+ope = op ":^"
+opa = op ":@"
+
 parseTestCasesT :: [(String, String)]
 parseTestCasesT =
   [ ("m", "Meter")
   , ("s", "Second")
-  , ("ms", ":@ Milli Second")
-  , ("mm", ":@ Milli Meter")
+  , ("ms", opa ++ " Milli Second")
+  , ("mm", opa ++ " Milli Meter")
   , ("mmm", "error")
-  , ("km", ":@ Kilo Meter")
-  , ("m s", ":* Meter Second")
-  , ("m/s", ":/ Meter Second")
-  , ("m/s^2", ":/ Meter (:^ Second (Succ (Succ Zero)))")
-  , ("s/m m", ":/ Second (:* Meter Meter)")
-  , ("s s/m m", ":/ (:* Second Second) (:* Meter Meter)")
-  , ("s*s/m*m", ":* (:/ (:* Second Second) Meter) Meter")
-  , ("s*s/(m*m)", ":/ (:* Second Second) (:* Meter Meter)")
-  , ("m^-1", ":^ Meter (Pred Zero)")
-  , ("m^(-1)", ":^ Meter (Pred Zero)")
-  , ("m^(-(1))", ":^ Meter (Pred Zero)")
+  , ("km", opa ++ " Kilo Meter")
+  , ("m s", opm ++ " Meter Second")
+  , ("m/s", opd ++ " Meter Second")
+  , ("m/s^2", opd ++ " Meter (" ++ ope ++ " Second (Succ (Succ Zero)))")
+  , ("s/m m", opd ++ " Second (" ++ opm ++ " Meter Meter)")
+  , ("s s/m m", opd ++ " (" ++ opm ++ " Second Second) (" ++ opm ++ " Meter Meter)")
+  , ("s*s/m*m", opm ++ " (" ++ opd ++ " (" ++ opm ++ " Second Second) Meter) Meter")
+  , ("s*s/(m*m)", opd ++ " (" ++ opm ++ " Second Second) (" ++ opm ++ " Meter Meter)")
+  , ("m^-1", ope ++ " Meter (Pred Zero)")
+  , ("m^(-1)", ope ++ " Meter (Pred Zero)")
+  , ("m^(-(1))", ope ++ " Meter (Pred Zero)")
   , ("1", "Number")
-  , ("1/s", ":/ Number Second")
-  , ("m 1 m", ":* (:* Meter Number) Meter")
+  , ("1/s", opd ++ " Number Second")
+  , ("1/s", opd ++ " Number Second")
+  , ("m 1 m", opm ++ " (" ++ opm ++ " Meter Number) Meter")
   , ("  ", "Number")
   , ("", "Number")
   ]
