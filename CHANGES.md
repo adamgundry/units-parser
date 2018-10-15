@@ -1,6 +1,11 @@
 Changelog for `units-parser`
 ============================
 
+0.1.1.3
+-------
+
+Fix testsuite to work with GHC 8.4+, thanks to @philderbeast.
+
 0.1.1.2
 -------
 
