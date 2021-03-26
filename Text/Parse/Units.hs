@@ -306,7 +306,7 @@ updatePosToken pos (OpT _) _          = incSourceColumn pos 1
 
 -- parse a Token
 uToken :: (Token -> Maybe a) -> UnitParser a
-uToken = tokenPrim show updatePosToken
+uToken x = tokenPrim show updatePosToken x
 
 -- consume an lparen
 lparenP :: UnitParser ()
