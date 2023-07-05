@@ -52,7 +52,8 @@ import Text.Parsec.String
 import Text.Parsec.Pos
 import qualified Data.Map.Strict as Map
 import qualified Data.MultiMap as MM
-import Control.Monad.Reader
+import Control.Monad (liftM, void)
+import Control.Monad.Reader (MonadReader(..), Reader, asks, runReader)
 import Control.Arrow       hiding ( app)
 import Data.Data (Data)
 import Data.Maybe
