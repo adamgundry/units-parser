@@ -48,4 +48,4 @@ test-suite main
                   , parsec >= 3
   other-modules:    Text.Parse.Units
 
-  ghc-options:        -O0 -Wall -main-is Tests.Parser
+  ghc-options:       -Wall

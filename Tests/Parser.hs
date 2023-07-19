@@ -3,8 +3,8 @@
 -}
 
 {-# LANGUAGE TemplateHaskell, TypeOperators, CPP #-}
-
-module Tests.Parser where
+{-# OPTIONS_GHC -Wno-incomplete-uni-patterns #-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 
 import Prelude hiding ( lex, exp )
 
@@ -107,9 +107,9 @@ mkSymbolTableTests :: TestTree
 mkSymbolTableTests = testGroup "mkSymbolTable"
   [ testCase "Unambiguous1" (Map.keys (prefixTable testSymbolTable) @?= ["d","da","k","m"])
   -- , testCase "Unambiguous2" (Map.keys (unitTable testSymbolTable) @?= ["am","m","min","s"])
-  , testCase "AmbigPrefix" (leftOnly (mkSymbolTable [("a",''Milli),("a",''Centi)] ([] :: [(String,Name)])) @?= Just "The label `a' is assigned to the following meanings:\n[\"Tests.Parser.Milli\",\"Tests.Parser.Centi\"]\nThis is ambiguous. Please fix before building a unit parser.")
-  , testCase "AmbigUnit" (leftOnly (mkSymbolTable ([] :: [(String,Name)]) [("m",''Meter),("m",''Minute)]) @?= Just "The label `m' is assigned to the following meanings:\n[\"Tests.Parser.Meter\",\"Tests.Parser.Minute\"]\nThis is ambiguous. Please fix before building a unit parser.")
-  , testCase "MultiAmbig" (leftOnly (mkSymbolTable [("a",''Milli),("b",''Centi),("b",''Deci),("b",''Kilo),("c",''Atto),("c",''Deca)] [("m",''Meter),("m",''Minute),("s",''Second)]) @?= Just "The label `b' is assigned to the following meanings:\n[\"Tests.Parser.Centi\",\"Tests.Parser.Deci\",\"Tests.Parser.Kilo\"]\nThe label `c' is assigned to the following meanings:\n[\"Tests.Parser.Atto\",\"Tests.Parser.Deca\"]\nThis is ambiguous. Please fix before building a unit parser.")
+  , testCase "AmbigPrefix" (leftOnly (mkSymbolTable [("a",''Milli),("a",''Centi)] ([] :: [(String,Name)])) @?= Just "The label `a' is assigned to the following meanings:\n[\"Main.Milli\",\"Main.Centi\"]\nThis is ambiguous. Please fix before building a unit parser.")
+  , testCase "AmbigUnit" (leftOnly (mkSymbolTable ([] :: [(String,Name)]) [("m",''Meter),("m",''Minute)]) @?= Just "The label `m' is assigned to the following meanings:\n[\"Main.Meter\",\"Main.Minute\"]\nThis is ambiguous. Please fix before building a unit parser.")
+  , testCase "MultiAmbig" (leftOnly (mkSymbolTable [("a",''Milli),("b",''Centi),("b",''Deci),("b",''Kilo),("c",''Atto),("c",''Deca)] [("m",''Meter),("m",''Minute),("s",''Second)]) @?= Just "The label `b' is assigned to the following meanings:\n[\"Main.Centi\",\"Main.Deci\",\"Main.Kilo\"]\nThe label `c' is assigned to the following meanings:\n[\"Main.Atto\",\"Main.Deca\"]\nThis is ambiguous. Please fix before building a unit parser.")
                                                                                                 ]
 
 testSymbolTable :: SymbolTable Name Name
