@@ -1,6 +1,17 @@
 Changelog for `units-parser`
 ============================
 
+0.1.1.5
+-------
+
+Add support for mtl-2.3.1 and hence GHC 9.6, thanks to @RyanGlScott.
+Various Cabal file fixes.
+
+0.1.1.4
+-------
+
+Fix for simplified subsumption.
+
 0.1.1.3
 -------
 
