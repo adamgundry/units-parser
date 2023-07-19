@@ -1,6 +1,6 @@
 name:           units-parser
 version:        0.1.1.5
-cabal-version:  >= 1.10
+cabal-version:  1.18
 synopsis:       A parser for units of measure
 category:       Text
 author:         Richard Eisenberg <rae@cs.brynmawr.edu>
