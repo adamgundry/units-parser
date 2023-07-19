@@ -10,7 +10,8 @@ import Prelude hiding ( lex, exp )
 
 import Text.Parse.Units
 
-import Control.Monad.Reader
+import Control.Monad (liftM)
+import Control.Monad.Reader (runReader)
 import qualified Data.Map.Strict as Map
 import Text.Parsec
 import Data.Generics
