@@ -11,7 +11,7 @@ license:        BSD3
 license-file:   LICENSE
 extra-doc-files: CHANGES.md
 build-type:     Simple
-tested-with:    GHC==9.6.1, GHC==9.4.4, GHC==9.2.7
+tested-with:    GHC==9.12.2, GHC==9.10.1, GHC==9.8.4, GHC==9.6.7, GHC==9.4.8, GHC==9.2.8
 description:
 
     The @units-parser@ package provides a parser for unit expressions
